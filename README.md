@@ -1,7 +1,7 @@
 # osm-droid-example
 This project is to understand how OSMDroid maps functionality is implemented in an Android Studio Gradle Android project
 
-![alt tag](https://raw.githubusercontent.com/zurche/)
+![alt tag](https://github.com/zurche/osm-droid-example/blob/master/sc.png)
 
 The feature list of this example includes:
 - Getting the latest known location of the device and centering the map on it.
