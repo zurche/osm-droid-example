@@ -1,23 +1,17 @@
 package az.osmdroidprop;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +31,7 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+    private static final int MULTIPLE_PERMISSION_REQUEST_CODE = 4;
     private MapView mapView;
     private Location mLastLocation;
     private GoogleApiClient mGoogleApiClient;
@@ -56,13 +51,85 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     .build();
         }
 
+        checkPermissionsState();
+    }
+
+    private void checkPermissionsState() {
+        int internetPermissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.INTERNET);
+
+        int networkStatePermissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_NETWORK_STATE);
+
+        int writeExternalStoragePermissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        int coarseLocationPermissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION);
+
+        int fineLocationPermissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+
+        int wifiStatePermissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_WIFI_STATE);
+
+        if (internetPermissionCheck == PackageManager.PERMISSION_GRANTED &&
+                networkStatePermissionCheck == PackageManager.PERMISSION_GRANTED &&
+                writeExternalStoragePermissionCheck == PackageManager.PERMISSION_GRANTED &&
+                coarseLocationPermissionCheck == PackageManager.PERMISSION_GRANTED &&
+                fineLocationPermissionCheck == PackageManager.PERMISSION_GRANTED &&
+                wifiStatePermissionCheck == PackageManager.PERMISSION_GRANTED) {
+
+            setupMap();
+
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.INTERNET,
+                            Manifest.permission.ACCESS_NETWORK_STATE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_WIFI_STATE},
+                    MULTIPLE_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MULTIPLE_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0) {
+                    boolean somePermissionWasDenied = false;
+                    for (int result : grantResults) {
+                        if (result == PackageManager.PERMISSION_DENIED) {
+                            somePermissionWasDenied = true;
+                        }
+                    }
+                    if (somePermissionWasDenied) {
+                        Toast.makeText(this, "Cant load maps without all the permissions granted", Toast.LENGTH_SHORT).show();
+                    } else {
+                        setupMap();
+                    }
+                } else {
+                    Toast.makeText(this, "Cant load maps without all the permissions granted", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+
+        }
+    }
+
+    private void setupMap() {
+
+
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setClickable(true);
         mapView.setBuiltInZoomControls(true);
         //setContentView(mapView); //displaying the MapView
 
         mapView.getController().setZoom(15); //set initial zoom-level, depends on your need
-//        mapView.getController().setCenter(ONCATIVO); 
+        //mapView.getController().setCenter(ONCATIVO);
         //mapView.setUseDataConnection(false); //keeps the mapView from loading online tiles using network connection.
         mapView.setTileSource(TileSourceFactory.MAPQUESTOSM);
 
@@ -107,7 +174,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 return true;
             }
         }, 1000));
-
     }
 
     protected void onStart() {
