@@ -122,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private void setupMap() {
 
-
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setClickable(true);
         mapView.setBuiltInZoomControls(true);
@@ -131,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mapView.getController().setZoom(15); //set initial zoom-level, depends on your need
         //mapView.getController().setCenter(ONCATIVO);
         //mapView.setUseDataConnection(false); //keeps the mapView from loading online tiles using network connection.
-        mapView.setTileSource(TileSourceFactory.MAPQUESTOSM);
+        mapView.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
 
         MyLocationNewOverlay oMapLocationOverlay = new MyLocationNewOverlay(getApplicationContext(), mapView);
         mapView.getOverlays().add(oMapLocationOverlay);
